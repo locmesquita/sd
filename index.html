@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <meta name="theme-color" content="#0F1117"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Ótica"/>
+  <title>Ótica Sistema</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0F1117;color:#E8E6E0;font-family:Georgia,serif;overscroll-behavior:none}
+    input,select,button,textarea{font-family:Georgia,serif}
+    ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:#0F1117}::-webkit-scrollbar-thumb{background:#C9A84C44;border-radius:2px}
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:10px;font-size:14px;z-index:9999;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+    .toast.ok{background:#1A2D1A;border:1px solid #4CAF5044;color:#4CAF50}
+    .toast.err{background:#3D1A1A;border:1px solid #E0707044;color:#E07070}
+    .toast.info{background:#1A2030;border:1px solid #17A2B844;color:#17A2B8}
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#1A1D2E;border-top:1px solid #C9A84C22;display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+    .bottom-nav button{flex:1;padding:8px 2px 6px;background:none;border:none;color:#666;font-size:9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:color .2s}
+    .bottom-nav button.active{color:#C9A84C}
+    .bottom-nav button .icon{font-size:18px}
+    /* OCR button */
+    .btn-ocr{width:100%;background:linear-gradient(135deg,#1A2D3A,#0F1A22);color:#17A2B8;border:1px solid #17A2B844;border-radius:8px;padding:12px 16px;cursor:pointer;font-size:14px;font-weight:bold;letter-spacing:1px;display:flex;align-items:center;justify-content:center;gap:8px}
+    .main-content{padding-bottom:70px}
+    .card{background:#1A1D2E;border:1px solid #C9A84C22;border-radius:12px;padding:16px;margin-bottom:14px}
+    .card-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#C9A84C;margin-bottom:14px}
+    .field{margin-bottom:12px}
+    .field label{font-size:11px;color:#888;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+    .field input,.field select,.field textarea{background:#0F1117;border:1px solid #C9A84C33;border-radius:8px;padding:11px 13px;color:#E8E6E0;font-size:15px;width:100%;outline:none}
+    .field textarea{resize:none;height:60px}
+    .field select option{background:#1A1D2E}
+    .btn-gold{background:linear-gradient(135deg,#C9A84C,#A8873B);color:#0F1117;border:none;border-radius:8px;padding:13px 20px;cursor:pointer;font-size:14px;font-weight:bold;letter-spacing:1px;width:100%}
+    .btn-outline{background:transparent;color:#C9A84C;border:1px solid #C9A84C44;border-radius:8px;padding:11px 16px;cursor:pointer;font-size:13px;width:100%;margin-top:8px}
+    .btn-sm{background:linear-gradient(135deg,#C9A84C,#A8873B);color:#0F1117;border:none;border-radius:6px;padding:9px 16px;cursor:pointer;font-size:13px;font-weight:bold}
+    .btn-danger{background:#2D1A1A;color:#E07070;border:1px solid #E0707044;border-radius:6px;padding:7px 12px;cursor:pointer;font-size:12px}
+    .btn-ghost{background:transparent;color:#888;border:1px solid #88888833;border-radius:6px;padding:7px 12px;cursor:pointer;font-size:12px}
+    .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+    .stat-card{background:#1A1D2E;border-radius:12px;padding:14px}
+    .stat-val{font-size:22px;font-weight:bold;color:#E8E6E0}
+    .stat-label{font-size:10px;color:#888;letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+    .tag{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px}
+    .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+    .header{background:linear-gradient(135deg,#1A1D2E,#0F1117);border-bottom:1px solid #C9A84C33;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .login-box{width:100%;max-width:400px;background:#1A1D2E;border:1px solid #C9A84C33;border-radius:16px;padding:32px 24px;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+    .avatar-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+    .avatar-card{cursor:pointer;border-radius:10px;padding:14px 6px;text-align:center;border:2px solid #C9A84C11;background:#0F1117;transition:all .2s}
+    .avatar-card.active{background:var(--cor-bg);border-color:var(--cor)}
+    .avatar-circle{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;color:#fff;margin:0 auto 7px}
+    .pedido-card{background:#0F1117;border-radius:10px;padding:14px;margin-bottom:10px;border:1px solid #C9A84C11}
+    .loader{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+    .row{display:flex;gap:10px}.row>*{flex:1}
+    .page{padding:16px}
+    .page-title{font-size:20px;color:#E8E6E0;margin-bottom:4px}
+    .page-sub{font-size:12px;color:#666;margin-bottom:16px}
+    .item-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1F2235}
+    .venda-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1F2235;font-size:13px}
+    .gold{color:#C9A84C}.green{color:#4CAF50}.red{color:#E07070}.yellow{color:#FFC107}.gray{color:#888;font-size:12px}
+    select.status-sel{background:#0F1117;border:1px solid #C9A84C33;border-radius:6px;padding:6px 8px;color:#E8E6E0;font-size:11px;width:100%;outline:none;margin-top:6px}
+    .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #C9A84C11}
+    .toggle-label{font-size:13px;color:#E8E6E0}
+    .toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+    .toggle input{opacity:0;width:0;height:0}
+    .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#333;border-radius:24px;transition:.3s}
+    .slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+    input:checked+.slider{background:#C9A84C}
+    input:checked+.slider:before{transform:translateX(20px)}
+    .mural{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px}
+    .mural-col{min-width:210px;background:#13151F;border-radius:10px;padding:12px;flex-shrink:0}
+    .mural-col-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+    .mural-card{background:#1A1D2E;border-radius:8px;padding:12px;margin-bottom:8px;border:1px solid #C9A84C11;cursor:pointer}
+    .mural-card:active{opacity:.7}
+    .modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:flex-end}
+    .modal{background:#1A1D2E;border-radius:16px 16px 0 0;padding:20px;width:100%;max-height:88vh;overflow-y:auto}
+    .modal-title{font-size:16px;color:#C9A84C;margin-bottom:16px;font-weight:bold}
+    .nf-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 8px;border-radius:5px}
+    .nf-ok{background:#1A2D1A;color:#4CAF50;border:1px solid #4CAF5033}
+    .nf-err{background:#2D1A1A;color:#E07070;border:1px solid #E0707033}
+    .nf-pend{background:#1A1A2D;color:#888;border:1px solid #88888833}
+    .section-header{font-size:12px;color:#C9A84C;letter-spacing:2px;text-transform:uppercase;padding:10px 0 6px;border-bottom:1px solid #C9A84C22;margin-bottom:12px}
+    .receita-box{background:#0F1117;border-radius:8px;padding:12px;margin-bottom:10px}
+    .receita-title{font-size:11px;color:#C9A84C;letter-spacing:1px;margin-bottom:8px}
+    /* desconto */
+    .desconto-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:12px}
+    .desconto-row>*:first-child{flex:1}
+    .badge-admin{background:#7952B322;color:#7952B3;border:1px solid #7952B344;font-size:10px;padding:2px 7px;border-radius:4px;letter-spacing:1px}
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ── USUARIOS (sem senha para atendentes, senha só para admin) ──
+const USUARIOS=[
+  {id:1,nome:"Cícera", avatar:"C",cor:"#C9A84C",cargo:"Atendente",senha:null},
+  {id:2,nome:"Renan",  avatar:"R",cor:"#17A2B8",cargo:"Atendente",senha:null},
+  {id:3,nome:"Eduardo",avatar:"E",cor:"#4CAF50",cargo:"Atendente",senha:null},
+  {id:4,nome:"Admin",  avatar:"A",cor:"#7952B3",cargo:"Admin",    senha:"admin2024"},
+];
+
+const PRODUTOS_INICIAL=[
+  {id:1,nome:"Armação Ray-Ban RB5154",   categoria:"Armação",estoque:8, preco:450,ncm:"90041000"},
+  {id:2,nome:"Armação Oakley OX8046",    categoria:"Armação",estoque:5, preco:520,ncm:"90041000"},
+  {id:3,nome:"Armação Infantil Colorida",categoria:"Armação",estoque:12,preco:180,ncm:"90041000"},
+  {id:4,nome:"Óculos Solar Ray-Ban",     categoria:"Solar",  estoque:6, preco:650,ncm:"90041000"},
+  {id:5,nome:"Óculos Solar Oakley",      categoria:"Solar",  estoque:4, preco:590,ncm:"90041000"},
+  {id:6,nome:"Lente Anti-reflexo Trans.",categoria:"Lente",  estoque:20,preco:310,ncm:"90015000"},
+  {id:7,nome:"Lente Multifocal Premium", categoria:"Lente",  estoque:15,preco:480,ncm:"90015000"},
+  {id:8,nome:"Lente Simples 1.56",       categoria:"Lente",  estoque:30,preco:120,ncm:"90015000"},
+];
+
+const MARCAS_LENTE_INICIAL=["Zeiss","Essilor","Hoya","Kodak","Shamir","Indo","Optifog"];
+
+const TIPOS_BASE=["Simples","Anti-reflexo","Transitions","Multifocal","Fotossensível"];
+const INDICES=["1.53","1.56","1.60","1.67","1.74"];
+
+const STATUS_COLORS={
+  "Pedido Realizado":   {bg:"#FFF3CD",text:"#856404",dot:"#FFC107"},
+  "Lentes Chegaram":    {bg:"#D1ECF1",text:"#0C5460",dot:"#17A2B8"},
+  "Em Montagem":        {bg:"#E2D9F3",text:"#4A235A",dot:"#7952B3"},
+  "Pronto p/ Retirada": {bg:"#D4EDDA",text:"#155724",dot:"#28A745"},
+  "Concluído":          {bg:"#E8E8E8",text:"#555",   dot:"#999"},
+};
+const STATUS_LIST=Object.keys(STATUS_COLORS);
+
+// ── STORAGE ──
+function lsLoad(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch{return null}}
+function lsSave(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+
+// ── STATE ──
+let state={
+  tela:"loading",aba:"dashboard",usuario:null,
+  produtos:PRODUTOS_INICIAL,vendas:[],pedidos:[],
+  marcasLente:MARCAS_LENTE_INICIAL,
+  config:{focusToken:"",cnpjEmitente:"",razaoSocial:"",nfceAtivo:false},
+  venda:{
+    cliente:"",cpf:"",telefone:"",pagamento:"Dinheiro",
+    temArmacao:false,temLente:false,
+    armacaoItems:[],
+    desconto:{tipo:"R$",valor:""},
+    lente:{marca:"",tipoBase:"",indice:"",od:{esf:"",cil:"",eixo:"",dnp:""},oe:{esf:"",cil:"",eixo:"",dnp:""},adicao:"",obs:"",precoLente:""},
+  },
+  vendaArmacaoItem:{produtoId:"",quantidade:1},
+  novoProduto:{nome:"",categoria:"Armação",estoque:0,preco:0,ncm:"90041000"},
+  novaMarca:"",
+  showNovoProduto:false,showNovasMarcas:false,
+  loginSel:null,loginSenha:"",loginErro:"",showSenha:false,
+  toast:null,modalPedido:null,emitindoNF:false,osCounter:0,
+  // OCR
+  ocrCarregando:false,ocrImgPreview:null,
+  // Clientes
+  clienteDetalhe:null,
+};
+
+// ── RENDER ──
+function render(){
+  const{tela,toast}=state;
+  let html="";
+  if(tela==="loading") html=`<div class="loader"><div style="font-size:48px">☁️</div><div style="color:#C9A84C;font-size:16px;letter-spacing:2px">CARREGANDO...</div></div>`;
+  else if(tela==="login") html=renderLogin();
+  else html=renderApp();
+  if(toast) html+=`<div class="toast ${toast.tipo}">${esc(toast.msg)}</div>`;
+  document.getElementById("app").innerHTML=html;
+}
+function showToast(msg,tipo="ok"){state.toast={msg,tipo};render();setTimeout(()=>{state.toast=null;render();},3000)}
+
+// ── PERSISTENCE ──
+function carregarDados(){
+  const p=lsLoad("otica:produtos"),v=lsLoad("otica:vendas"),ped=lsLoad("otica:pedidos"),cfg=lsLoad("otica:config"),ml=lsLoad("otica:marcas"),os=lsLoad("otica:osCounter");
+  if(p)state.produtos=p;if(v)state.vendas=v;if(ped)state.pedidos=ped;if(cfg)state.config=cfg;if(ml)state.marcasLente=ml;if(os!=null)state.osCounter=os;
+}
+function salvarDados(){
+  lsSave("otica:produtos",state.produtos);lsSave("otica:vendas",state.vendas);
+  lsSave("otica:pedidos",state.pedidos);lsSave("otica:config",state.config);lsSave("otica:marcas",state.marcasLente);lsSave("otica:osCounter",state.osCounter);
+}
+function proximaOS(){
+  state.osCounter=(state.osCounter||0)+1;
+  return String(state.osCounter).padStart(4,"0");
+}
+
+// ── HELPERS ──
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function now(){const d=new Date();return{data:d.toLocaleDateString("pt-BR"),hora:d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}}
+function tagHTML(s){const c=STATUS_COLORS[s]||{bg:"#eee",text:"#333",dot:"#999"};return`<span class="tag" style="background:${c.bg};color:${c.text}"><span class="dot" style="background:${c.dot}"></span>${esc(s)}</span>`}
+function field(label,inputHTML){return`<div class="field"><label>${label}</label>${inputHTML}</div>`}
+function inp(id,val,ph="",type="text"){return`<input id="${id}" type="${type}" value="${esc(String(val))}" placeholder="${ph}" oninput="onInp(event,'${id}')"/>`}
+function selHTML(id,val,opts){const o=opts.map(o=>{const v=typeof o==="object"?o.value:o,l=typeof o==="object"?o.label:o;return`<option value="${esc(v)}"${val==v?" selected":""}>${esc(l)}</option>`}).join("");return`<select id="${id}" onchange="onSel(event,'${id}')">${o}</select>`}
+function isAdmin(){return state.usuario&&state.usuario.cargo==="Admin"}
+
+function calcTotal(v){
+  const arm=v.armacaoItems.reduce((s,i)=>s+i.subtotal,0);
+  const lente=v.temLente?Number(v.lente.precoLente||0):0;
+  const bruto=arm+lente;
+  if(!v.desconto||!v.desconto.valor)return bruto;
+  const d=Number(v.desconto.valor)||0;
+  if(v.desconto.tipo==="%") return Math.max(0,bruto-(bruto*d/100));
+  return Math.max(0,bruto-d);
+}
+function calcDesconto(v){
+  const arm=v.armacaoItems.reduce((s,i)=>s+i.subtotal,0);
+  const lente=v.temLente?Number(v.lente.precoLente||0):0;
+  const bruto=arm+lente;
+  const d=Number(v.desconto?.valor||0);
+  if(!d)return 0;
+  if(v.desconto.tipo==="%")return bruto*d/100;
+  return Math.min(d,bruto);
+}
+function tipoLenteCompleto(l){
+  const p=[l.marca,l.tipoBase,l.indice?`${l.indice}`:""].filter(Boolean).join(" ");
+  return p||"Lente";
+}
+
+// ── INPUT HANDLERS ──
+window.onInp=function(e,id){
+  const v=e.target.value,pts=id.split(".");
+  const set=(obj,keys,val)=>{if(keys.length===1)obj[keys[0]]=val;else set(obj[keys[0]],keys.slice(1),val)};
+  if(pts[0]==="venda")set(state.venda,pts.slice(1),v);
+  else if(pts[0]==="vendaArmacaoItem")set(state.vendaArmacaoItem,pts.slice(1),v);
+  else if(pts[0]==="novoProduto")set(state.novoProduto,pts.slice(1),v);
+  else if(pts[0]==="config")set(state.config,pts.slice(1),v);
+  else if(id==="novaMarca")state.novaMarca=v;
+};
+window.onSel=function(e,id){window.onInp(e,id);render()};
+window.onLoginInp=function(e){state.loginSenha=e.target.value;state.loginErro=""};
+
+// ── TOGGLES ──
+window.toggleTemArmacao=function(c){state.venda.temArmacao=c;render()};
+window.toggleTemLente=function(c){state.venda.temLente=c;render()};
+window.toggleNfce=function(c){state.config.nfceAtivo=c;salvarDados();render()};
+
+// ── LOGIN ──
+window.login=function(){
+  if(!state.loginSel)return state.loginErro="Selecione um usuário",render();
+  const u=USUARIOS.find(u=>u.id===state.loginSel);
+  // admin precisa de senha, atendentes não
+  if(u.senha!==null&&u.senha!==state.loginSenha)return state.loginErro="Senha incorreta!",render();
+  state.usuario=u;state.tela="app";state.loginErro="";render();
+};
+window.logout=function(){state.usuario=null;state.tela="login";state.loginSel=null;state.loginSenha="";render()};
+window.onLoginSel=function(id){
+  state.loginSel=id;state.loginSenha="";state.loginErro="";
+  const u=USUARIOS.find(u=>u.id===id);
+  // se não tem senha, entra direto
+  if(u&&u.senha===null){state.usuario=u;state.tela="app";state.loginErro="";}
+  render();
+};
+window.toggleSenha=function(){state.showSenha=!state.showSenha;render()};
+window.loginEnter=function(e){if(e.key==="Enter")window.login()};
+
+// ── VENDA ──
+window.addArmacaoItem=function(){
+  const prod=state.produtos.find(p=>p.id===Number(state.vendaArmacaoItem.produtoId));
+  if(!prod)return showToast("Selecione um produto","err");
+  const qtd=Number(state.vendaArmacaoItem.quantidade);
+  if(qtd>prod.estoque)return showToast("Estoque insuficiente!","err");
+  state.venda.armacaoItems=[...state.venda.armacaoItems,{...prod,quantidade:qtd,subtotal:prod.preco*qtd}];
+  state.vendaArmacaoItem={produtoId:"",quantidade:1};render();
+};
+window.removerArmacaoItem=function(i){state.venda.armacaoItems=state.venda.armacaoItems.filter((_,j)=>j!==i);render()};
+
+window.finalizarVenda=async function(){
+  const v=state.venda;
+  if(!v.cliente)return showToast("Informe o nome do cliente","err");
+  if(!v.temArmacao&&!v.temLente)return showToast("Selecione armação e/ou lente","err");
+  if(v.temArmacao&&!v.armacaoItems.length)return showToast("Adicione ao menos um produto","err");
+  if(v.temLente&&!v.lente.tipoBase)return showToast("Selecione o tipo da lente","err");
+  const{data,hora}=now();
+  const total=calcTotal(v);
+  const desconto=calcDesconto(v);
+  const venda={...v,id:Date.now(),data,hora,total,desconto,funcionario:state.usuario.nome,nfStatus:"pendente",nfChave:""};
+  if(v.temArmacao){
+    state.produtos=state.produtos.map(p=>{
+      const item=venda.armacaoItems.find(i=>i.id===p.id);
+      return item?{...p,estoque:p.estoque-item.quantidade}:p;
+    });
+  }
+  if(v.temLente){
+    const os=proximaOS();
+    state.pedidos=[{
+      id:Date.now()+1,data,hora,os,
+      cliente:v.cliente,telefone:v.telefone,
+      ...v.lente,
+      tipoLenteCompleto:tipoLenteCompleto(v.lente),
+      status:"Pedido Realizado",
+      funcionario:state.usuario.nome,
+      vendaId:venda.id,
+    },...state.pedidos];
+  }
+  state.vendas=[venda,...state.vendas];
+  state.venda={cliente:"",cpf:"",telefone:"",pagamento:"Dinheiro",temArmacao:false,temLente:false,armacaoItems:[],desconto:{tipo:"R$",valor:""},lente:{marca:"",tipoBase:"",indice:"",od:{esf:"",cil:"",eixo:"",dnp:""},oe:{esf:"",cil:"",eixo:"",dnp:""},adicao:"",obs:"",precoLente:""}};
+  salvarDados();
+  showToast(`✓ Venda R$ ${total.toFixed(2)} registrada!${desconto>0?" (desc. R$"+desconto.toFixed(2)+")":""}`);
+  if(state.config.nfceAtivo&&state.config.focusToken)emitirNFCe(venda);
+};
+
+// ── NFC-e ──
+async function emitirNFCe(venda){
+  state.emitindoNF=true;render();
+  const cfg=state.config;
+  const itens=[];
+  if(venda.temArmacao){
+    venda.armacaoItems.forEach(item=>{
+      itens.push({numero_item:itens.length+1,codigo_produto:String(item.id),descricao:item.nome,ncm:item.ncm||"90041000",cfop:"5102",unidade_comercial:"UN",quantidade_comercial:item.quantidade,valor_unitario_comercial:item.preco,valor_unitario_tributacao:item.preco,quantidade_tributavel:item.quantidade,unidade_tributavel:"UN",valor_bruto:item.subtotal,icms_origem:0,icms_modalidade_determinacao_bc:3,icms_aliquota:0,icms_valor:0,pis_modalidade:7,cofins_modalidade:7});
+    });
+  }
+  if(venda.temLente){
+    const pl=Number(venda.lente.precoLente||0);
+    itens.push({numero_item:itens.length+1,codigo_produto:"LENTE001",descricao:`Lente ${tipoLenteCompleto(venda.lente)}`,ncm:"90015000",cfop:"5102",unidade_comercial:"PAR",quantidade_comercial:1,valor_unitario_comercial:pl,valor_unitario_tributacao:pl,quantidade_tributavel:1,unidade_tributavel:"PAR",valor_bruto:pl,icms_origem:0,icms_modalidade_determinacao_bc:3,icms_aliquota:0,icms_valor:0,pis_modalidade:7,cofins_modalidade:7});
+  }
+  const pgMap={"Dinheiro":1,"Cartão Débito":4,"Cartão Crédito":3,"PIX":17,"Parcelado":3};
+  const payload={natureza_operacao:"VENDA",data_emissao:new Date().toISOString(),data_saida_entrada:new Date().toISOString(),tipo_documento:1,finalidade_emissao:1,cnpj_emitente:cfg.cnpjEmitente.replace(/\D/g,""),nome_emitente:cfg.razaoSocial,nome_destinatario:venda.cliente||"CONSUMIDOR",cpf_destinatario:venda.cpf?venda.cpf.replace(/\D/g,""):undefined,indicador_inscricao_estadual_destinatario:9,modalidade_frete:9,items:itens,forma_pagamento:[{forma_pagamento:pgMap[venda.pagamento]||1,valor_pagamento:venda.total}]};
+  try{
+    const ref="otica"+venda.id;
+    const resp=await fetch(`https://homologacao.focusnfe.com.br/v2/nfce?ref=${ref}`,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Token "+cfg.focusToken},body:JSON.stringify(payload)});
+    const data=await resp.json();
+    if(resp.status===201||resp.status===200){
+      state.vendas=state.vendas.map(v=>v.id===venda.id?{...v,nfStatus:"emitida",nfChave:data.chave_nfe||"",nfDanfe:data.danfe_nfce_url||""}:v);
+      salvarDados();showToast("✅ NFC-e emitida!","ok");
+    }else{
+      state.vendas=state.vendas.map(v=>v.id===venda.id?{...v,nfStatus:"erro",nfErro:data.mensagem||"Erro"}:v);
+      salvarDados();showToast("⚠️ Erro NFC-e: "+(data.mensagem||"verifique config"),"err");
+    }
+  }catch(e){
+    state.vendas=state.vendas.map(v=>v.id===venda.id?{...v,nfStatus:"erro",nfErro:"Falha de conexão"}:v);
+    salvarDados();showToast("❌ Falha ao emitir NFC-e","err");
+  }
+  state.emitindoNF=false;render();
+}
+window.reemitirNFCe=function(id){const v=state.vendas.find(v=>v.id===id);if(v)emitirNFCe(v)};
+
+// ── PEDIDOS ──
+window.atualizarStatus=function(id,s){state.pedidos=state.pedidos.map(p=>p.id===id?{...p,status:s}:p);salvarDados();showToast(`Status → ${s}`)};
+window.abrirModalPedido=function(id){state.modalPedido=state.pedidos.find(p=>p.id===id)||null;render()};
+window.fecharModal=function(){state.modalPedido=null;render()};
+
+window.imprimirOS=function(id){
+  const p=state.pedidos.find(x=>x.id===id);
+  if(!p)return;
+  const cfg=state.config;
+  const win=window.open("","_blank","width=400,height=600");
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+  <title>O.S. ${p.os||"—"}</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:Arial,sans-serif;font-size:13px;padding:20px;color:#000;background:#fff}
+    .header{text-align:center;border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:12px}
+    .logo{font-size:20px;font-weight:bold;letter-spacing:2px}
+    .os-num{font-size:28px;font-weight:bold;color:#000;margin:8px 0 2px}
+    .os-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#555}
+    .section{margin-bottom:12px}
+    .section-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#555;border-bottom:1px solid #ddd;padding-bottom:4px;margin-bottom:8px}
+    .row{display:flex;justify-content:space-between;margin-bottom:4px}
+    .label{color:#555;font-size:12px}
+    .val{font-weight:bold;font-size:12px}
+    .receita{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    .olho{border:1px solid #ccc;border-radius:6px;padding:8px}
+    .olho-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:6px}
+    .grade-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+    .grade-item{display:flex;flex-direction:column}
+    .grade-label{font-size:9px;color:#888;text-transform:uppercase}
+    .grade-val{font-size:14px;font-weight:bold}
+    .obs-box{border:1px solid #ccc;border-radius:6px;padding:8px;min-height:40px;font-size:12px;color:#333}
+    .status-box{background:#f5f5f5;border-radius:6px;padding:8px;text-align:center;font-size:12px;margin-bottom:12px}
+    .assinatura{margin-top:24px;border-top:1px solid #000;padding-top:8px;text-align:center;font-size:11px;color:#555}
+    .footer{margin-top:16px;text-align:center;font-size:10px;color:#999;border-top:1px solid #eee;padding-top:8px}
+    @media print{body{padding:10px}}
+  </style>
+  </head><body>
+  <div class="header">
+    <div class="logo">👓 ${esc(cfg.razaoSocial||"ÓTICA")}</div>
+    <div class="os-label">Ordem de Serviço</div>
+    <div class="os-num">O.S. #${p.os||"—"}</div>
+    <div style="font-size:11px;color:#555">${p.data} ${p.hora||""} · por ${esc(p.funcionario)}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Cliente</div>
+    <div class="row"><span class="label">Nome</span><span class="val">${esc(p.cliente)}</span></div>
+    ${p.telefone?`<div class="row"><span class="label">Telefone</span><span class="val">${esc(p.telefone)}</span></div>`:""}
+  </div>
+
+  <div class="section">
+    <div class="section-title">Lente</div>
+    <div class="row"><span class="label">Tipo</span><span class="val">${esc(p.tipoLenteCompleto||p.tipoBase||"—")}</span></div>
+    ${p.marca?`<div class="row"><span class="label">Marca</span><span class="val">${esc(p.marca)}</span></div>`:""}
+  </div>
+
+  <div class="section">
+    <div class="section-title">Receita</div>
+    <div class="receita">
+      <div class="olho">
+        <div class="olho-title">Olho Direito (OD)</div>
+        <div class="grade-grid">
+          <div class="grade-item"><span class="grade-label">ESF</span><span class="grade-val">${p.od?.esf||"—"}</span></div>
+          <div class="grade-item"><span class="grade-label">CIL</span><span class="grade-val">${p.od?.cil||"—"}</span></div>
+          <div class="grade-item"><span class="grade-label">EIXO</span><span class="grade-val">${p.od?.eixo||"—"}</span></div>
+          <div class="grade-item"><span class="grade-label">DNP</span><span class="grade-val">${p.od?.dnp||"—"}</span></div>
+        </div>
+      </div>
+      <div class="olho">
+        <div class="olho-title">Olho Esquerdo (OE)</div>
+        <div class="grade-grid">
+          <div class="grade-item"><span class="grade-label">ESF</span><span class="grade-val">${p.oe?.esf||"—"}</span></div>
+          <div class="grade-item"><span class="grade-label">CIL</span><span class="grade-val">${p.oe?.cil||"—"}</span></div>
+          <div class="grade-item"><span class="grade-label">EIXO</span><span class="grade-val">${p.oe?.eixo||"—"}</span></div>
+          <div class="grade-item"><span class="grade-label">DNP</span><span class="grade-val">${p.oe?.dnp||"—"}</span></div>
+        </div>
+      </div>
+    </div>
+    ${p.adicao?`<div class="row"><span class="label">Adição</span><span class="val">${esc(p.adicao)}</span></div>`:""}
+  </div>
+
+  ${p.obs?`<div class="section"><div class="section-title">Observações</div><div class="obs-box">${esc(p.obs)}</div></div>`:""}
+
+  <div class="status-box">Status atual: <strong>${esc(p.status)}</strong></div>
+
+  <div class="assinatura">
+    <div style="height:36px"></div>
+    <div>Assinatura do cliente</div>
+  </div>
+  <div class="footer">O.S. #${p.os||"—"} · ${p.data} · ${esc(cfg.razaoSocial||"Ótica")}</div>
+  <script>window.onload=function(){window.print();}<\/script>
+  </body></html>`);
+  win.document.close();
+};
+
+// ── ESTOQUE ──
+window.adicionarProduto=function(){
+  if(!state.novoProduto.nome)return showToast("Informe o nome","err");
+  state.produtos=[...state.produtos,{...state.novoProduto,id:Date.now(),estoque:Number(state.novoProduto.estoque),preco:Number(state.novoProduto.preco)}];
+  state.novoProduto={nome:"",categoria:"Armação",estoque:0,preco:0,ncm:"90041000"};
+  state.showNovoProduto=false;salvarDados();showToast("✓ Produto adicionado!");render();
+};
+window.toggleNovoProduto=function(){state.showNovoProduto=!state.showNovoProduto;render()};
+
+// ── MARCAS LENTE ──
+window.adicionarMarca=function(){
+  const m=state.novaMarca.trim();
+  if(!m)return showToast("Digite o nome da marca","err");
+  if(state.marcasLente.includes(m))return showToast("Marca já cadastrada","err");
+  state.marcasLente=[...state.marcasLente,m];state.novaMarca="";
+  salvarDados();showToast("✓ Marca adicionada!");render();
+};
+window.removerMarca=function(m){
+  state.marcasLente=state.marcasLente.filter(x=>x!==m);
+  salvarDados();render();
+};
+window.toggleNovasMarcas=function(){state.showNovasMarcas=!state.showNovasMarcas;render()};
+
+// ── CONFIG ──
+window.setAba=function(a){state.aba=a;render()};
+window.salvarConfig=function(){salvarDados();showToast("✓ Configurações salvas!")};
+
+// ── OCR RECEITA ──
+window.abrirOCR=function(){
+  const inp=document.createElement("input");
+  inp.type="file";inp.accept="image/*";inp.capture="environment";
+  inp.onchange=async e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=async ev=>{
+      const b64=ev.result.split(",")[1];
+      const mime=file.type||"image/jpeg";
+      state.ocrImgPreview=ev.result;
+      state.ocrCarregando=true;render();
+      try{
+        const resp=await fetch("https://api.anthropic.com/v1/messages",{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({
+            model:"claude-sonnet-4-20250514",
+            max_tokens:1000,
+            messages:[{role:"user",content:[
+              {type:"image",source:{type:"base64",media_type:mime,data:b64}},
+              {type:"text",text:`Você é um leitor de receitas ópticas. Analise esta imagem e extraia as informações.
+Responda APENAS com JSON válido, sem markdown, sem explicações, neste formato exato:
+{
+  "nome_cliente": "nome se encontrado ou vazio",
+  "od_esf": "valor ou vazio",
+  "od_cil": "valor ou vazio",
+  "od_eixo": "valor ou vazio",
+  "od_dnp": "valor ou vazio",
+  "oe_esf": "valor ou vazio",
+  "oe_cil": "valor ou vazio",
+  "oe_eixo": "valor ou vazio",
+  "oe_dnp": "valor ou vazio",
+  "adicao": "valor ou vazio"
+}
+Use os campos OD (olho direito) e OE (olho esquerdo). Converta vírgulas para vírgulas. Se não encontrar algum campo, deixe vazio.`}
+            ]}]
+          })
+        });
+        const data=await resp.json();
+        const txt=data.content?.[0]?.text||"{}";
+        const clean=txt.replace(/```json|```/g,"").trim();
+        const parsed=JSON.parse(clean);
+        // preencher form
+        if(parsed.nome_cliente)state.venda.cliente=parsed.nome_cliente;
+        if(!state.venda.temLente){state.venda.temLente=true;}
+        const l=state.venda.lente;
+        if(parsed.od_esf)l.od.esf=parsed.od_esf;
+        if(parsed.od_cil)l.od.cil=parsed.od_cil;
+        if(parsed.od_eixo)l.od.eixo=parsed.od_eixo;
+        if(parsed.od_dnp)l.od.dnp=parsed.od_dnp;
+        if(parsed.oe_esf)l.oe.esf=parsed.oe_esf;
+        if(parsed.oe_cil)l.oe.cil=parsed.oe_cil;
+        if(parsed.oe_eixo)l.oe.eixo=parsed.oe_eixo;
+        if(parsed.oe_dnp)l.oe.dnp=parsed.oe_dnp;
+        if(parsed.adicao)l.adicao=parsed.adicao;
+        state.ocrCarregando=false;
+        showToast("✓ Receita lida com sucesso!");
+      }catch(err){
+        state.ocrCarregando=false;
+        showToast("Erro ao ler receita: "+err.message,"err");
+      }
+      render();
+    };
+    reader.readAsDataURL(file);
+  };
+  inp.click();
+};
+window.limparOCR=function(){state.ocrImgPreview=null;render()};
+
+// ── CLIENTES ──
+function calcClientes(){
+  const map={};
+  state.vendas.forEach(v=>{
+    const chave=(v.cliente||"?").trim().toLowerCase();
+    if(!map[chave])map[chave]={nome:v.cliente||"?",compras:[],total:0,ultimaData:"",ultimaDataRaw:0};
+    map[chave].compras.push(v);
+    map[chave].total+=v.total||0;
+    // data raw para ordenação
+    const [d,m,a]=v.data.split("/");
+    const raw=Number(a+m+d)||0;
+    if(raw>map[chave].ultimaDataRaw){map[chave].ultimaDataRaw=raw;map[chave].ultimaData=v.data;}
+  });
+  return Object.values(map).sort((a,b)=>b.total-a.total);
+}
+window.abrirCliente=function(nome){
+  const chave=nome.trim().toLowerCase();
+  const clientes=calcClientes();
+  state.clienteDetalhe=clientes.find(c=>c.nome.trim().toLowerCase()===chave)||null;
+  render();
+};
+window.fecharClienteDetalhe=function(){state.clienteDetalhe=null;render()};
+
+
+function renderLogin(){
+  const{loginSel,loginSenha,loginErro,showSenha}=state;
+  const selUser=USUARIOS.find(u=>u.id===loginSel);
+  const precisaSenha=selUser&&selUser.senha!==null;
+  return`<div class="login-wrap">
+    <div class="login-box">
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="width:60px;height:60px;background:linear-gradient(135deg,#C9A84C,#E8D08A);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 10px">👓</div>
+        <div style="font-size:22px;color:#C9A84C;letter-spacing:3px;font-weight:bold">ÓTICA SISTEMA</div>
+        <div style="font-size:11px;color:#666;letter-spacing:2px;text-transform:uppercase;margin-top:4px">Gestão Profissional</div>
+      </div>
+      <div style="font-size:11px;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Quem está acessando?</div>
+      <div class="avatar-grid">
+        ${USUARIOS.map(u=>`
+          <div class="avatar-card ${loginSel===u.id?"active":""}" style="--cor:${u.cor};--cor-bg:${u.cor}22" onclick="onLoginSel(${u.id})">
+            <div class="avatar-circle" style="background:linear-gradient(135deg,${u.cor},${u.cor}88)">${u.avatar}</div>
+            <div style="font-size:13px;color:#E8E6E0">${u.nome}</div>
+            <div style="font-size:10px;margin-top:2px;color:${u.cargo==="Admin"?"#7952B3":"#666"}">${u.cargo}</div>
+          </div>`).join("")}
+      </div>
+      ${precisaSenha?`
+        <div style="font-size:11px;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Senha</div>
+        <div style="position:relative;margin-bottom:16px">
+          <input style="background:#0F1117;border:1px solid #C9A84C33;border-radius:8px;padding:12px 44px 12px 14px;color:#E8E6E0;font-size:15px;width:100%;outline:none"
+            type="${showSenha?"text":"password"}" value="${esc(loginSenha)}" placeholder="Senha do Admin..."
+            oninput="onLoginInp(event)" onkeydown="loginEnter(event)" autofocus/>
+          <button onclick="toggleSenha()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#666;font-size:18px">${showSenha?"🙈":"👁"}</button>
+        </div>
+        ${loginErro?`<div style="color:#E07070;font-size:13px;text-align:center;margin-bottom:12px;background:#2D1A1A;padding:8px 14px;border-radius:8px">✕ ${esc(loginErro)}</div>`:""}
+        <button class="btn-gold" onclick="login()">Entrar →</button>
+      `:`
+        ${loginErro?`<div style="color:#E07070;font-size:13px;text-align:center;margin-bottom:12px;background:#2D1A1A;padding:8px 14px;border-radius:8px">✕ ${esc(loginErro)}</div>`:""}
+      `}
+      <div style="text-align:center;margin-top:16px;font-size:11px;color:#444">Atendentes entram direto · Admin requer senha</div>
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════
+// RENDER: DASHBOARD
+// ════════════════════════════════════════════════
+function renderDashboard(){
+  const{produtos,vendas,pedidos}=state;
+  const receitaTotal=vendas.reduce((s,v)=>s+v.total,0);
+  const pedidosAbertos=pedidos.filter(p=>p.status!=="Concluído").length;
+  const estoqueBaixo=produtos.filter(p=>p.estoque<=3).length;
+  return`<div class="page">
+    <div class="page-title">Visão Geral</div>
+    <div class="page-sub" style="color:#555">Dados salvos localmente</div>
+    <div class="stat-grid">
+      <div class="stat-card" style="border-left:3px solid #C9A84C"><div class="stat-val gold">R$&nbsp;${receitaTotal.toLocaleString("pt-BR",{minimumFractionDigits:2})}</div><div class="stat-label">Receita Total</div></div>
+      <div class="stat-card" style="border-left:3px solid #4CAF50"><div class="stat-val">${vendas.length}</div><div class="stat-label">Vendas</div></div>
+      <div class="stat-card" style="border-left:3px solid #17A2B8"><div class="stat-val">${pedidosAbertos}</div><div class="stat-label">Pedidos Abertos</div></div>
+      <div class="stat-card" style="border-left:3px solid ${estoqueBaixo>0?"#E07070":"#4CAF50"}"><div class="stat-val ${estoqueBaixo>0?"red":""}">${estoqueBaixo}</div><div class="stat-label">Estoque Baixo</div></div>
+    </div>
+    ${pedidos.filter(p=>p.status!=="Concluído").length?`
+    <div class="card">
+      <div class="card-title">◉ Pedidos Recentes</div>
+      ${pedidos.filter(p=>p.status!=="Concluído").slice(0,4).map(p=>`
+        <div class="pedido-card" onclick="setAba('mural')">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-weight:bold">${esc(p.cliente)}</div><div class="gray">${esc(p.tipoLenteCompleto||p.tipoLente||"")} · ${p.data}</div></div>
+            ${tagHTML(p.status)}
+          </div>
+        </div>`).join("")}
+    </div>`:""}
+    ${estoqueBaixo>0?`
+    <div class="card">
+      <div class="card-title">▣ Estoque Baixo</div>
+      ${produtos.filter(p=>p.estoque<=3).map(p=>`<div class="item-row"><div>${esc(p.nome)}</div><div class="red">${p.estoque} un.</div></div>`).join("")}
+    </div>`:""}
+  </div>`;
+}
+
+// ════════════════════════════════════════════════
+// RENDER: VENDA
+// ════════════════════════════════════════════════
+function renderVenda(){
+  const{venda,vendaArmacaoItem,produtos,marcasLente}=state;
+  const total=calcTotal(venda);
+  const bruto=venda.armacaoItems.reduce((s,i)=>s+i.subtotal,0)+(venda.temLente?Number(venda.lente.precoLente||0):0);
+  const desc=calcDesconto(venda);
+  const disponiveis=produtos.filter(p=>p.estoque>0&&(p.categoria==="Armação"||p.categoria==="Solar"));
+  const marcaOpts=[{value:"",label:"Selecione a marca..."},...marcasLente.map(m=>({value:m,label:m}))];
+  const tipoOpts=[{value:"",label:"Tipo..."},...TIPOS_BASE.map(t=>({value:t,label:t}))];
+  const indiceOpts=[{value:"",label:"Índice..."},...INDICES.map(i=>({value:i,label:i}))];
+  return`<div class="page">
+    <div class="page-title">Nova Venda</div>
+
+    <div class="card">
+      <div class="card-title">◎ Cliente</div>
+      ${field("Nome *",inp("venda.cliente",venda.cliente,"Nome completo"))}
+      <div class="row">
+        ${field("CPF",inp("venda.cpf",venda.cpf,"000.000.000-00"))}
+        ${field("Telefone",inp("venda.telefone",venda.telefone,"(00) 00000-0000"))}
+      </div>
+      ${field("Pagamento",selHTML("venda.pagamento",venda.pagamento,["Dinheiro","Cartão Débito","Cartão Crédito","PIX","Parcelado"]))}
+    </div>
+
+    <div class="card">
+      <div class="card-title">◎ O que será vendido?</div>
+      <div class="toggle-row">
+        <div><div class="toggle-label">🕶 Armação / Óculos Solar</div><div style="font-size:11px;color:#666;margin-top:2px">Produto do estoque</div></div>
+        <label class="toggle"><input type="checkbox" ${venda.temArmacao?"checked":""} onchange="toggleTemArmacao(this.checked)"/><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div><div class="toggle-label">👁 Lentes de grau</div><div style="font-size:11px;color:#666;margin-top:2px">Gera pedido no mural</div></div>
+        <label class="toggle"><input type="checkbox" ${venda.temLente?"checked":""} onchange="toggleTemLente(this.checked)"/><span class="slider"></span></label>
+      </div>
+      ${venda.temLente?`
+      <div style="margin-top:12px">
+        <button onclick="abrirOCR()" class="btn-ocr">
+          📷 ${state.ocrCarregando?"Lendo receita...":"Fotografar Receita"}
+        </button>
+        ${state.ocrImgPreview?`
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+          <img src="${state.ocrImgPreview}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #C9A84C44"/>
+          <div>
+            <div style="font-size:11px;color:#4CAF50">✓ Foto carregada — campos preenchidos abaixo</div>
+            <button onclick="limparOCR()" style="font-size:11px;color:#888;background:none;border:none;cursor:pointer;padding:0;margin-top:2px">× Remover foto</button>
+          </div>
+        </div>`:""}
+      </div>`:""}
+    </div>
+
+    ${venda.temArmacao?`
+    <div class="card">
+      <div class="card-title">🕶 Armação / Óculos</div>
+      ${field("Produto",selHTML("vendaArmacaoItem.produtoId",vendaArmacaoItem.produtoId,[{value:"",label:"Selecione..."},...disponiveis.map(p=>({value:String(p.id),label:`${p.nome} — R$ ${p.preco} (${p.estoque} un.)`}))]))}
+      ${field("Quantidade",inp("vendaArmacaoItem.quantidade",vendaArmacaoItem.quantidade,"1","number"))}
+      <button class="btn-outline" onclick="addArmacaoItem()">+ Adicionar</button>
+      ${venda.armacaoItems.length?`<div style="margin-top:12px">${venda.armacaoItems.map((item,i)=>`
+        <div class="venda-item">
+          <div><div>${esc(item.nome)}</div><div class="gray">${item.quantidade}x R$ ${item.preco.toFixed(2)}</div></div>
+          <div style="display:flex;align-items:center;gap:8px"><span class="gold">R$ ${item.subtotal.toFixed(2)}</span><button class="btn-danger" onclick="removerArmacaoItem(${i})">✕</button></div>
+        </div>`).join("")}</div>`:""}
+    </div>`:""}
+
+    ${venda.temLente?`
+    <div class="card">
+      <div class="card-title">👁 Receita das Lentes</div>
+      <div class="row">
+        ${field("Marca",selHTML("venda.lente.marca",venda.lente.marca,marcaOpts))}
+        ${field("Tipo",selHTML("venda.lente.tipoBase",venda.lente.tipoBase,tipoOpts))}
+      </div>
+      ${field("Índice",selHTML("venda.lente.indice",venda.lente.indice,indiceOpts))}
+      <div class="receita-box">
+        <div class="receita-title">OLHO DIREITO (OD)</div>
+        <div class="row">${field("ESF",inp("venda.lente.od.esf",venda.lente.od.esf,"0,00"))}${field("CIL",inp("venda.lente.od.cil",venda.lente.od.cil,"0,00"))}</div>
+        <div class="row">${field("EIXO",inp("venda.lente.od.eixo",venda.lente.od.eixo,"0"))}${field("DNP",inp("venda.lente.od.dnp",venda.lente.od.dnp,"0,0"))}</div>
+      </div>
+      <div class="receita-box">
+        <div class="receita-title">OLHO ESQUERDO (OE)</div>
+        <div class="row">${field("ESF",inp("venda.lente.oe.esf",venda.lente.oe.esf,"0,00"))}${field("CIL",inp("venda.lente.oe.cil",venda.lente.oe.cil,"0,00"))}</div>
+        <div class="row">${field("EIXO",inp("venda.lente.oe.eixo",venda.lente.oe.eixo,"0"))}${field("DNP",inp("venda.lente.oe.dnp",venda.lente.oe.dnp,"0,0"))}</div>
+      </div>
+      <div class="row">
+        ${field("Adição",inp("venda.lente.adicao",venda.lente.adicao,"+2,00"))}
+        ${field("Preço das Lentes R$",inp("venda.lente.precoLente",venda.lente.precoLente,"0,00","number"))}
+      </div>
+      ${field("Obs.",inp("venda.lente.obs",venda.lente.obs,"Observações..."))}
+    </div>`:""}
+
+    ${(venda.temArmacao||venda.temLente)?`
+    <div class="card">
+      <div class="card-title">💰 Desconto</div>
+      <div class="desconto-row">
+        <div>${field("Valor do Desconto",inp("venda.desconto.valor",venda.desconto.valor,"0"))}</div>
+        <div style="flex:0 0 80px">${field("Tipo",selHTML("venda.desconto.tipo",venda.desconto.tipo,[{value:"R$",label:"R$"},{value:"%",label:"%"}]))}</div>
+      </div>
+      ${desc>0?`<div style="font-size:12px;color:#E07070;margin-bottom:8px">Desconto: - R$ ${desc.toFixed(2)}</div>`:""}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        ${bruto!==total?`<div style="font-size:13px;color:#888">Subtotal: <s>R$ ${bruto.toFixed(2)}</s></div>`:"<div></div>"}
+        <div style="font-size:18px;color:#C9A84C">Total: <strong>R$ ${total.toFixed(2)}</strong></div>
+      </div>
+      ${state.emitindoNF?`<div style="text-align:center;padding:10px;color:#C9A84C">Emitindo NFC-e...</div>`:`
+      <button class="btn-gold" onclick="finalizarVenda()">${state.config.nfceAtivo?"🧾 Finalizar e Emitir NFC-e":"✓ Finalizar Venda"}</button>`}
+    </div>`:""}
+  </div>`;
+}
+
+// ════════════════════════════════════════════════
+// RENDER: MURAL
+// ════════════════════════════════════════════════
+function renderMural(){
+  const{pedidos,modalPedido}=state;
+  const muralHTML=`<div class="page">
+    <div class="page-title">Mural de Pedidos</div>
+    <div class="page-sub">${pedidos.filter(p=>p.status!=="Concluído").length} pedido(s) em aberto</div>
+    <div class="mural">
+      ${STATUS_LIST.map(col=>{
+        const cards=pedidos.filter(p=>p.status===col);
+        const c=STATUS_COLORS[col];
+        return`<div class="mural-col">
+          <div class="mural-col-title" style="color:${c.dot}"><span class="dot" style="background:${c.dot}"></span>${esc(col)} <span style="color:#444">(${cards.length})</span></div>
+          ${cards.length===0?`<div style="font-size:12px;color:#333;text-align:center;padding:16px">Vazio</div>`:""}
+          ${cards.map(p=>`<div class="mural-card" onclick="abrirModalPedido(${p.id})">
+            ${p.os?`<div style="font-size:10px;color:#C9A84C;letter-spacing:2px;margin-bottom:3px;font-weight:bold">O.S. #${esc(p.os)}</div>`:""}
+            <div style="font-weight:bold;font-size:13px;margin-bottom:4px">${esc(p.cliente)}</div>
+            <div style="font-size:11px;color:#888">${esc(p.tipoLenteCompleto||p.tipoBase||"")} · ${p.data}</div>
+            <div style="font-size:11px;color:#C9A84C;margin-top:3px">por ${esc(p.funcionario)}</div>
+          </div>`).join("")}
+        </div>`;
+      }).join("")}
+    </div>
+  </div>`;
+  if(!modalPedido) return muralHTML;
+  const p=modalPedido;
+  const modal=`<div class="modal-bg" onclick="fecharModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+        <div class="modal-title" style="margin-bottom:0">👓 ${esc(p.cliente)}</div>
+        ${p.os?`<div style="text-align:right"><div style="font-size:10px;color:#888;letter-spacing:2px">ORDEM DE SERVIÇO</div><div style="font-size:22px;font-weight:bold;color:#C9A84C">#${esc(p.os)}</div></div>`:""}
+      </div>
+      <div class="gray" style="margin-bottom:10px">${p.data} ${p.hora||""} · por ${esc(p.funcionario)}</div>
+      ${p.telefone?`<div style="margin-bottom:8px;font-size:13px">📞 ${esc(p.telefone)}</div>`:""}
+      <div style="margin-bottom:10px"><span class="gold">Lente:</span> ${esc(p.tipoLenteCompleto||p.tipoBase||"—")}${p.marca?` · ${esc(p.marca)}`:""}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="receita-box"><div class="receita-title">OD</div>
+          <div style="font-size:13px">ESF: ${p.od?.esf||"—"} / CIL: ${p.od?.cil||"—"}</div>
+          <div style="font-size:13px">Eixo: ${p.od?.eixo||"—"} / DNP: ${p.od?.dnp||"—"}</div>
+        </div>
+        <div class="receita-box"><div class="receita-title">OE</div>
+          <div style="font-size:13px">ESF: ${p.oe?.esf||"—"} / CIL: ${p.oe?.cil||"—"}</div>
+          <div style="font-size:13px">Eixo: ${p.oe?.eixo||"—"} / DNP: ${p.oe?.dnp||"—"}</div>
+        </div>
+      </div>
+      ${p.adicao?`<div style="margin-bottom:8px;font-size:13px">Adição: ${esc(p.adicao)}</div>`:""}
+      ${p.obs?`<div style="margin-bottom:12px;font-size:13px;color:#888;font-style:italic">Obs: ${esc(p.obs)}</div>`:""}
+      <div class="field"><label>Atualizar Status</label>
+        <select onchange="atualizarStatus(${p.id},this.value);state.modalPedido=state.pedidos.find(x=>x.id===${p.id});render()">
+          ${STATUS_LIST.map(s=>`<option value="${s}"${p.status===s?" selected":""}>${s}</option>`).join("")}
+        </select>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button class="btn-gold" style="flex:1" onclick="fecharModal()">Fechar</button>
+        <button onclick="imprimirOS(${p.id})" style="flex:1;background:#1A2D1A;color:#4CAF50;border:1px solid #4CAF5044;border-radius:8px;padding:13px;cursor:pointer;font-size:14px;font-weight:bold">🖨️ Imprimir O.S.</button>
+      </div>
+    </div>
+  </div>`;
+  return muralHTML+modal;
+}
+
+// ════════════════════════════════════════════════
+// RENDER: ESTOQUE
+// ════════════════════════════════════════════════
+function renderEstoque(){
+  const{produtos,showNovoProduto,novoProduto,marcasLente,novaMarca,showNovasMarcas}=state;
+  return`<div class="page">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div><div class="page-title">Estoque</div><div class="page-sub">${produtos.length} produtos</div></div>
+      <button class="btn-sm" onclick="toggleNovoProduto()">+ Produto</button>
+    </div>
+
+    ${showNovoProduto?`
+    <div class="card">
+      <div class="card-title">▣ Novo Produto</div>
+      ${field("Nome *",inp("novoProduto.nome",novoProduto.nome,"Nome do produto"))}
+      ${field("Categoria",selHTML("novoProduto.categoria",novoProduto.categoria,["Armação","Solar","Lente","Acessório"]))}
+      <div class="row">
+        ${field("Estoque",inp("novoProduto.estoque",novoProduto.estoque,"0","number"))}
+        ${field("Preço R$",inp("novoProduto.preco",novoProduto.preco,"0","number"))}
+      </div>
+      ${field("NCM",inp("novoProduto.ncm",novoProduto.ncm,"90041000"))}
+      <button class="btn-gold" onclick="adicionarProduto()">Salvar Produto</button>
+    </div>`:""}
+
+    <!-- MARCAS DE LENTE -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="card-title" style="margin-bottom:0">👁 Marcas de Lente</div>
+        <button class="btn-ghost" onclick="toggleNovasMarcas()">${showNovasMarcas?"Fechar":"+ Marca"}</button>
+      </div>
+      ${showNovasMarcas?`
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="flex:1" class="field" style="margin-bottom:0"><input style="background:#0F1117;border:1px solid #C9A84C33;border-radius:8px;padding:10px 13px;color:#E8E6E0;font-size:14px;width:100%;outline:none" value="${esc(novaMarca)}" placeholder="Ex: Zeiss, Essilor..." oninput="onInp(event,'novaMarca')"/></div>
+        <button class="btn-sm" onclick="adicionarMarca()">+ Adicionar</button>
+      </div>`:""}
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${marcasLente.map(m=>`
+          <div style="display:flex;align-items:center;gap:6px;background:#0F1117;border:1px solid #C9A84C22;border-radius:20px;padding:5px 12px">
+            <span style="font-size:13px">${esc(m)}</span>
+            ${isAdmin()?`<button onclick="removerMarca('${esc(m)}')" style="background:none;border:none;color:#E07070;cursor:pointer;font-size:14px;padding:0;line-height:1">×</button>`:""}
+          </div>`).join("")}
+      </div>
+    </div>
+
+    <div class="card">
+      ${produtos.map(p=>`
+        <div class="item-row">
+          <div>
+            <div style="font-size:14px">${esc(p.nome)}</div>
+            <div style="font-size:11px;color:#888">${p.categoria} · NCM ${p.ncm||"—"} · R$ ${p.preco.toFixed(2)}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-weight:bold;color:${p.estoque<=3?"#E07070":p.estoque<=8?"#FFC107":"#4CAF50"}">${p.estoque}</div>
+            <div style="font-size:10px;color:#666">un.</div>
+          </div>
+        </div>`).join("")}
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════
+// RENDER: HISTÓRICO
+// ════════════════════════════════════════════════
+function renderHistorico(){
+  const{vendas}=state;
+  const total=vendas.reduce((s,v)=>s+v.total,0);
+  const nfBadge=(v)=>{
+    if(!state.config.nfceAtivo)return"";
+    if(v.nfStatus==="emitida")return`<span class="nf-badge nf-ok">✓ NFC-e</span>`;
+    if(v.nfStatus==="erro")return`<span class="nf-badge nf-err" onclick="reemitirNFCe(${v.id})" style="cursor:pointer">⚠ Reemitir</span>`;
+    return`<span class="nf-badge nf-pend">◌ NF Pend.</span>`;
+  };
+  return`<div class="page">
+    <div class="page-title">Histórico de Vendas</div>
+    <div class="page-sub">Total: <span class="gold">R$ ${total.toLocaleString("pt-BR",{minimumFractionDigits:2})}</span></div>
+    ${vendas.length===0?`<div class="card" style="text-align:center;padding:40px;color:#555">Nenhuma venda ainda.</div>`
+    :vendas.map(v=>`
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div>
+            <div style="font-weight:bold;font-size:15px">${esc(v.cliente)}</div>
+            <div class="gray">${v.data} ${v.hora||""} · <span style="color:#C9A84C">${esc(v.funcionario)}</span></div>
+            <div style="margin-top:4px">${nfBadge(v)}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:18px;color:#C9A84C;font-weight:bold">R$ ${v.total.toFixed(2)}</div>
+            ${v.desconto>0?`<div style="font-size:11px;color:#E07070">- R$ ${Number(v.desconto).toFixed(2)} desc.</div>`:""}
+            <div style="font-size:11px;color:#4CAF50;background:#1A2D1A;border:1px solid #4CAF5033;border-radius:5px;padding:2px 7px;margin-top:3px">${esc(v.pagamento)}</div>
+          </div>
+        </div>
+        ${v.temArmacao&&v.armacaoItems?.length?`
+          <div class="section-header">Armação</div>
+          ${v.armacaoItems.map(i=>`<div class="venda-item"><div>${esc(i.nome)}</div><div class="gold">x${i.quantidade} R$ ${i.subtotal.toFixed(2)}</div></div>`).join("")}`:""}
+        ${v.temLente?`
+          <div class="section-header">Lentes — ${esc(tipoLenteCompleto(v.lente||{}))}</div>
+          <div style="font-size:12px;color:#888">OD: ${v.lente?.od?.esf||"—"}/${v.lente?.od?.cil||"—"} · OE: ${v.lente?.oe?.esf||"—"}/${v.lente?.oe?.cil||"—"}</div>
+          <div style="font-size:13px;color:#C9A84C;margin-top:4px">R$ ${Number(v.lente?.precoLente||0).toFixed(2)}</div>`:""}
+      </div>`).join("")}
+  </div>`;
+}
+
+// ════════════════════════════════════════════════
+// RENDER: CLIENTES
+// ════════════════════════════════════════════════
+function renderClientes(){
+  const clientes=calcClientes();
+  const{clienteDetalhe}=state;
+
+  const listaHTML=`<div class="page">
+    <div class="page-title">👥 Clientes</div>
+    <div class="page-sub">${clientes.length} cliente(s) cadastrado(s)</div>
+    ${clientes.length===0?`<div class="card" style="text-align:center;padding:40px;color:#555">Nenhuma venda registrada ainda.</div>`:""}
+    ${clientes.map(c=>`
+      <div class="card" style="cursor:pointer" onclick="abrirCliente('${esc(c.nome)}')">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:bold;font-size:15px">${esc(c.nome)}</div>
+            <div class="gray">${c.compras.length} compra(s) · última: ${c.ultimaData||"—"}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:18px;color:#C9A84C;font-weight:bold">R$ ${c.total.toLocaleString("pt-BR",{minimumFractionDigits:2})}</div>
+            <div style="font-size:10px;color:#666">total gasto</div>
+          </div>
+        </div>
+      </div>`).join("")}
+  </div>`;
+
+  if(!clienteDetalhe) return listaHTML;
+
+  const c=clienteDetalhe;
+  const tiposMap=c.compras.reduce((m,v)=>{
+    if(v.temArmacao)v.armacaoItems?.forEach(i=>{m[i.categoria]=(m[i.categoria]||0)+1});
+    if(v.temLente)m["Lentes"]=(m["Lentes"]||0)+1;
+    return m;
+  },{});
+
+  const modal=`<div class="modal-bg" onclick="fecharClienteDetalhe()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-title" style="margin-bottom:2px">👤 ${esc(c.nome)}</div>
+      <div class="gray" style="margin-bottom:14px">${c.compras.length} compra(s) · última em ${c.ultimaData||"—"}</div>
+
+      <!-- Resumo -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+        <div class="stat-card" style="padding:10px;border-left:3px solid #C9A84C">
+          <div style="font-size:16px;font-weight:bold;color:#C9A84C">R$ ${c.total.toLocaleString("pt-BR",{minimumFractionDigits:2})}</div>
+          <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px">Total Gasto</div>
+        </div>
+        <div class="stat-card" style="padding:10px;border-left:3px solid #4CAF50">
+          <div style="font-size:16px;font-weight:bold">${c.compras.length}</div>
+          <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px">Compras</div>
+        </div>
+        <div class="stat-card" style="padding:10px;border-left:3px solid #17A2B8">
+          <div style="font-size:16px;font-weight:bold">R$ ${(c.total/c.compras.length).toLocaleString("pt-BR",{minimumFractionDigits:2})}</div>
+          <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px">Ticket Médio</div>
+        </div>
+      </div>
+
+      <!-- Categorias -->
+      ${Object.keys(tiposMap).length?`
+      <div style="margin-bottom:14px">
+        <div style="font-size:10px;color:#888;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">O que comprou</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${Object.entries(tiposMap).map(([k,v])=>`<span style="background:#1A1D2E;border:1px solid #C9A84C22;border-radius:20px;padding:4px 12px;font-size:12px">${esc(k)} <span class="gold">×${v}</span></span>`).join("")}
+        </div>
+      </div>`:""}
+
+      <!-- Histórico de compras -->
+      <div style="font-size:10px;color:#888;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Histórico de compras</div>
+      ${c.compras.map(v=>`
+        <div style="background:#0F1117;border-radius:8px;padding:12px;margin-bottom:8px;border:1px solid #C9A84C11">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <div class="gray">${v.data} ${v.hora||""}</div>
+            <div style="font-weight:bold;color:#C9A84C">R$ ${v.total.toFixed(2)}</div>
+          </div>
+          <div style="font-size:12px;color:#666">${esc(v.pagamento)} · por ${esc(v.funcionario)}</div>
+          ${v.temArmacao&&v.armacaoItems?.length?`<div style="font-size:12px;color:#888;margin-top:4px">🕶 ${v.armacaoItems.map(i=>esc(i.nome)).join(", ")}</div>`:""}
+          ${v.temLente?`<div style="font-size:12px;color:#888;margin-top:2px">👁 Lentes: OD ${v.lente?.od?.esf||"—"}/${v.lente?.od?.cil||"—"} · OE ${v.lente?.oe?.esf||"—"}/${v.lente?.oe?.cil||"—"}</div>`:""}
+        </div>`).join("")}
+
+      <button class="btn-gold" onclick="fecharClienteDetalhe()">Fechar</button>
+    </div>
+  </div>`;
+  return listaHTML+modal;
+}
+
+
+function renderConfig(){
+  const{config}=state;
+  return`<div class="page">
+    <div class="page-title">⚙️ Configurações</div>
+    <div class="card">
+      <div class="card-title">🧾 NFC-e — Focus NFe</div>
+      <div class="toggle-row" style="margin-bottom:14px">
+        <div class="toggle-label">Emissão de NFC-e ativa</div>
+        <label class="toggle"><input type="checkbox" ${config.nfceAtivo?"checked":""} onchange="toggleNfce(this.checked)"/><span class="slider"></span></label>
+      </div>
+      ${field("Token Focus NFe",`<input style="background:#0F1117;border:1px solid #C9A84C33;border-radius:8px;padding:11px 13px;color:#E8E6E0;font-size:13px;width:100%;outline:none" type="password" value="${esc(config.focusToken)}" placeholder="Token da API Focus NFe" oninput="onInp(event,'config.focusToken')"/>`)}
+      ${field("CNPJ Emitente",inp("config.cnpjEmitente",config.cnpjEmitente,"00.000.000/0001-00"))}
+      ${field("Razão Social",inp("config.razaoSocial",config.razaoSocial,"Nome da empresa"))}
+      <div style="background:#1A1A0F;border:1px solid #C9A84C33;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:#888">
+        ⚠️ URL atual: <strong style="color:#C9A84C">homologação</strong>. Para produção altere para <code>api.focusnfe.com.br</code>.
+      </div>
+      <button class="btn-gold" onclick="salvarConfig()">💾 Salvar Configurações</button>
+    </div>
+    <div class="card">
+      <div class="card-title">👥 Usuários</div>
+      ${USUARIOS.map(u=>`
+        <div class="item-row">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,${u.cor},${u.cor}88);display:flex;align-items:center;justify-content:center;font-weight:bold;color:#fff">${u.avatar}</div>
+            <div><div>${u.nome}</div><div class="gray">${u.cargo}</div></div>
+          </div>
+          <div style="font-size:11px;color:#555">${u.senha?`🔒 senha definida`:`🔓 acesso livre`}</div>
+        </div>`).join("")}
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════
+// RENDER: APP SHELL
+// ════════════════════════════════════════════════
+function renderApp(){
+  const{aba,usuario}=state;
+  const abas=[
+    {key:"dashboard",label:"Início",  icon:"🏠"},
+    {key:"venda",    label:"Venda",   icon:"💰"},
+    {key:"mural",    label:"Mural",   icon:"📋"},
+    {key:"clientes", label:"Clientes",icon:"👥"},
+    {key:"estoque",  label:"Estoque", icon:"📦"},
+    {key:"historico",label:"Histórico",icon:"🕐"},
+    {key:"config",   label:"Config",  icon:"⚙️"},
+  ];
+  const pages={dashboard:renderDashboard,venda:renderVenda,mural:renderMural,clientes:renderClientes,estoque:renderEstoque,historico:renderHistorico,config:renderConfig};
+  return`
+    <div class="header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:32px;height:32px;background:linear-gradient(135deg,#C9A84C,#E8D08A);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px">👓</div>
+        <div style="font-size:15px;font-weight:bold;color:#C9A84C;letter-spacing:1px">ÓTICA SISTEMA</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:7px">
+          <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,${usuario.cor},${usuario.cor}88);display:flex;align-items:center;justify-content:center;font-weight:bold;color:#fff;font-size:13px">${usuario.avatar}</div>
+          <span style="font-size:13px">${usuario.nome}</span>
+          ${isAdmin()?`<span class="badge-admin">ADMIN</span>`:""}
+        </div>
+        <button onclick="logout()" style="background:transparent;border:1px solid #C9A84C33;color:#888;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:11px">Sair</button>
+      </div>
+    </div>
+    <div class="main-content">${(pages[aba]||renderDashboard)()}</div>
+    <div class="bottom-nav">
+      ${abas.map(a=>`<button class="${aba===a.key?"active":""}" onclick="setAba('${a.key}')">
+        <span class="icon">${a.icon}</span><span>${a.label}</span>
+      </button>`).join("")}
+    </div>`;
+}
+
+// ── BOOT ──
+window.addEventListener("DOMContentLoaded",()=>{carregarDados();state.tela="login";render()});
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
